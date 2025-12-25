@@ -1,0 +1,24 @@
+type Product {
+    id: ID
+    name: String
+    category: String
+    quantity: Int
+    price: Int
+}
+
+type ProductResponse{
+    msg : String
+    code : Int
+}
+
+type Query {
+    findAll: [Product]
+    findByCategory(category: String): [Product]
+}
+
+type Mutation {
+    addProduct(name : String! ,category : String! , quantity : Int! , price : Int!) : [Product],
+    updateQuantity(id: ID!, quantity: Int!): Product
+    updatePrice(id : ID! , price : Int!) : Product
+    deleteProduct(id : ID!) : ProductResponse
+}

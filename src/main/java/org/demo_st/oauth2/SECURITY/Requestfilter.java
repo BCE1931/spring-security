@@ -16,7 +16,8 @@
 
     @Configuration
     @EnableWebSecurity
-    @EnableMethodSecurity
+//    @EnableMethodSecurity
+    @EnableMethodSecurity(prePostEnabled = true)
     public class Requestfilter {
 
         @Autowired
@@ -38,6 +39,8 @@
                                     "/oauth2/**"
                             ).permitAll()
                             .requestMatchers("/api/v1/**").authenticated()
+                                    .requestMatchers("/graphql").authenticated()
+
 //                            .requestMatchers("/api/v2").hasRole("ADMIN")
                             .anyRequest().denyAll()
                     )

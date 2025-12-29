@@ -14,6 +14,7 @@ type ProductResponse{
 type Query {
     findAll: [Product]
     findByCategory(category: String): [Product]
+    findById(id : ID!) : Product
 }
 
 type Mutation {
@@ -22,3 +23,27 @@ type Mutation {
     updatePrice(id : ID! , price : Int!) : Product
     deleteProduct(id : ID!) : ProductResponse
 }
+
+
+
+#->The difference is decided by the URL (endpoint) and transport configuration, not by schema or resolver. fro subscription code . code for websoket and sse
+#//INSTEAD OF MULTIPLE ARGUMNETS
+#input UserInput {
+#    name: String
+#    email: String
+#    age: Int
+#}
+#
+#type Mutation {
+#    createUser(input: UserInput): User
+#}
+
+#mutation {
+#    createUser(input: {
+#        name: "Sasank"
+#        email: "a@b.com"
+#        age: 22
+#    }) {
+#        id
+#    }
+#}

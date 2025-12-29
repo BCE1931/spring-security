@@ -31,6 +31,12 @@ public class ProductController {
     }
 
     @QueryMapping
+    @PreAuthorize("hasAuthority('WEATHER_WRITE')")
+    public Products findById(@Argument int id){
+        return productService.findById(id);
+    }
+
+    @QueryMapping
     @PreAuthorize("hasAuthority('WEATHER_READ')")
     public List<Products> findByCategory(@Argument String category){
         return productService.findByCategory(category);
@@ -41,6 +47,7 @@ public class ProductController {
     public Products updateQuantity(@Argument int id, @Argument int quantity) {
         return productService.updatequantity(id, quantity);
     }
+
 
     @MutationMapping
     @PreAuthorize("hasAuthority('WEATHER_WRITE')")

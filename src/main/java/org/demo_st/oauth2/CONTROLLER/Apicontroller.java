@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
@@ -27,31 +24,49 @@ public class Apicontroller {
 
     @GetMapping("/getuserinfo")
     @PreAuthorize("hasAuthority('WEATHER_READ')")
-    //@PreAuthorize("hasRole('ADMIN')")
-    //@PreAuthorize("hasAnyRole('ADMIN' , 'USER)")
-    //WE CAN ADD ANY ONE IN ABOVE 3
     public ResponseEntity<?> getuserinfo(Authentication auth) {
         String email = auth.getName();
         return ResponseEntity.ok(userrepo.findByEmail(email));
     }
 
-    @GetMapping("/hi")
-    //@PreAuthorize("hasRole('ADMIN')")
-    //@PreAuthorize("hasAnyRole('ADMIN' , 'USER)")
-    @PreAuthorize("hasAuthority('WEATHER_WRITE')")
-    public ResponseEntity<?>  hi(Authentication auth) {
+    @PutMapping("/updatedetails")
+    public ResponseEntity<?>  updatedetails(Authentication auth , @RequestBody User user) {
         String email = auth.getName();
-        return ResponseEntity.ok(userrepo.findByEmail(email));
+        Optional<User> userOptional = userrepo.findByEmail(email);
+        if(userOptional.isPresent()) {
+            User newUser = userOptional.get();
+            newUser.setEmail(user.getEmail());
+            newUser.setLogintype("google -> manual");
+            newUser.setPassword(user.getPassword());
+            newUser.setUsername(user.getUsername());
+            userrepo.save(newUser);
+            return ResponseEntity.ok("user pwd updated successfully");
+        }
+        else{
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @GetMapping("/hello")
-    @PreAuthorize("hasAuthority('WEATHER_DELETE')")
-    //@PreAuthorize("hasRole('ADMIN')")
-    //@PreAuthorize("hasAnyRole('ADMIN' , 'USER)")
-    public ResponseEntity<?>  hello(Authentication auth) {
-        String email = auth.getName();
-        return ResponseEntity.ok(userrepo.findByEmail(email));
-    }
+//    @GetMapping("/hi")
+//    //@PreAuthorize("hasRole('ADMIN')")
+//    //@PreAuthorize("hasAnyRole('ADMIN' , 'USER)")
+//    @PreAuthorize("hasAuthority('WEATHER_WRITE')")
+    //WE CAN ADD ANY ONE IN ABOVE 3
+//    public ResponseEntity<?>  hi(Authentication auth) {
+//        String email = auth.getName();
+//        return ResponseEntity.ok(userrepo.findByEmail(email));
+//    }
+//
+//    @GetMapping("/hello")
+//    @PreAuthorize("hasAuthority('WEATHER_DELETE')")
+//    //@PreAuthorize("hasRole('ADMIN')")
+//    //@PreAuthorize("hasAnyRole('ADMIN' , 'USER)")
+//    public ResponseEntity<?>  hello(Authentication auth) {
+//        String email = auth.getName();
+//        return ResponseEntity.ok(userrepo.findByEmail(email));
+//    }
+
+
 
     //WHILE DEPLOYING USER ROLE CREATE AND DELETE USERS FROM DB
     //BY DEFAULT ROLE IS USER NOT DB

@@ -26,24 +26,26 @@
         @Autowired
         private JwtAuthFilter jwtAuthFilter;
 
-        @Bean
-        public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+            @Bean
+            public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-            http
-                    .cors(Customizer.withDefaults())
-                    .csrf(csrf -> csrf.disable())
-                    .authorizeHttpRequests(auth -> auth
-                            .requestMatchers(
-                                    "/authentication/**",
-                                    "/token/**",
-                                    "/oauth2/**"
-                            ).permitAll()
-                            .requestMatchers("/api/v1/**").authenticated()
-                                    .requestMatchers("/graphql").authenticated()
+                http
+                        .cors(Customizer.withDefaults())
+                        .csrf(csrf -> csrf.disable())
+                        .authorizeHttpRequests(auth -> auth
+                                .requestMatchers(
+                                        "/authentication/**",
+                                        "/token/**",
+                                        "/oauth2/**",
+                                        "/otp/**"
+                                ).permitAll()
+                                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers("/api/v1/**").authenticated()
+                                        .requestMatchers("/graphql").authenticated()
 
-//                            .requestMatchers("/api/v2").hasRole("ADMIN")
-                            .anyRequest().denyAll()
-                    )
+    //                            .requestMatchers("/api/v2").hasRole("ADMIN")
+                                .anyRequest().denyAll()
+                        )
                     .addFilterBefore(jwtAuthFilter,
                             UsernamePasswordAuthenticationFilter.class)
                     .exceptionHandling(ex -> ex

@@ -10,7 +10,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/token")
-@CrossOrigin(origins = "http://localhost:5173")
 public class JsonController {
     @Autowired
     private TokenGeneration tokenGeneration;
@@ -29,10 +28,10 @@ public class JsonController {
     @PostMapping("/refresh")
     public ResponseEntity<?> refresh(@RequestBody Map<String, String> body) {
         String refreshToken = body.get("refreshtoken");
-        String username = validatetoken.extractEmail(refreshToken.substring(7));
-        System.out.println("Refresh Token generation requested for: " + username);
-        String token = tokenGeneration.generateToken(username);
-        String refreshtoken = tokenGeneration.generaterefreshtoken(username);
+        String email = validatetoken.extractEmail(refreshToken.substring(7));
+        System.out.println("Refresh Token generation requested for: " + email);
+        String token = tokenGeneration.generateToken(email);
+        String refreshtoken = tokenGeneration.generaterefreshtoken(email);
         return ResponseEntity.ok(Map.of("token", token, "refreshtoken", refreshtoken));
     }
 }

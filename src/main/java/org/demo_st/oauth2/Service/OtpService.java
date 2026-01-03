@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,40 +57,50 @@ public class OtpService {
 
         otp.setOtp(otpValue);
         otp.setType("signup");
+        LocalDateTime now = LocalDateTime.now();
+        otp.setCreatedAt(now);
+        otp.setExpiredAt(now.plusSeconds(180));
         otprepo.save(otp);
-
         return ResponseEntity.ok("otp sent successfully");
     }
 
     public ResponseEntity<?> signupOtpValidation(Otp otp) {
-        Optional<Otp> savedOtp = otprepo.findByEmailAndType(otp.getEmail(),"signup");
-        if (savedOtp.isEmpty() || !savedOtp.get().getType().equals("signup")) {
+        Optional<Otp> savedOtp = otprepo.findTopByEmailAndTypeOrderByCreatedAtDesc(otp.getEmail(), "signup");
+
+        if (savedOtp.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("email not found");
         }
-
-        if (!Objects.equals(savedOtp.get().getOtp(), otp.getOtp())) {
+        Otp dbOtp = savedOtp.get();
+        if (!Objects.equals(dbOtp.getOtp(), otp.getOtp())) {
             return ResponseEntity.badRequest().body("enter correct otp");
         }
-
+        if (LocalDateTime.now().isAfter(dbOtp.getExpiredAt())) {
+            return ResponseEntity.badRequest().body("otp expired");
+        }
         User user = new User();
         user.setEmail(otp.getEmail());
-        user.setPassword(savedOtp.get().getPassword());
-        user.setUsername(savedOtp.get().getUsername());
+        user.setPassword(dbOtp.getPassword());
+        user.setUsername(dbOtp.getUsername());
         user.setRole(Role.USER);
         user.setLogintype("manual");
+
         userrepo.save(user);
+
+        otprepo.delete(dbOtp);
         String token = tokenGeneration.generateToken(user.getEmail());
         String refresh_token = tokenGeneration.generaterefreshtoken(user.getEmail());
-        HashMap<String , String> map = new HashMap<>();
+
+        HashMap<String, String> map = new HashMap<>();
         map.put("token", token);
         map.put("refreshtoken", refresh_token);
-        map.put("msg" , "user registered successfully");
+        map.put("msg", "user registered successfully");
+
         return ResponseEntity.ok(map);
+
     }
 
-
-    public ResponseEntity<?> pwdResetOtpReq(Otp otp) {
+        public ResponseEntity<?> pwdResetOtpReq(Otp otp) {
         Optional<User> user = userrepo.findByEmail(otp.getEmail());
 
         if (user.isEmpty()) {
@@ -104,23 +115,28 @@ public class OtpService {
 
         otp.setOtp(otpValue);
         otp.setType("pwdreset");
+        LocalDateTime now = LocalDateTime.now();
+        otp.setCreatedAt(now);
+        otp.setExpiredAt(now.plusSeconds(180));
         otprepo.save(otp);
 
         return ResponseEntity.ok("password reset otp sent successfully");
     }
 
     public ResponseEntity<?> pwdResetOtpValidation(Otp otp) {
-        Optional<Otp> savedOtp = otprepo.findByEmailAndType(otp.getEmail(),"pwdreset");
+        Optional<Otp> savedOtp = otprepo.findTopByEmailAndTypeOrderByCreatedAtDesc(otp.getEmail(),"pwdreset");
         Optional<User> user = userrepo.findByEmail(otp.getEmail());
 
         if (savedOtp.isEmpty() || user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("email not found");
         }
-
-        if (!savedOtp.get().getType().equals("pwdreset")
-                || !Objects.equals(savedOtp.get().getOtp(), otp.getOtp())) {
+        Otp dbOtp = savedOtp.get();
+        if (!Objects.equals(dbOtp.getOtp(), otp.getOtp())) {
             return ResponseEntity.badRequest().body("enter correct otp");
+        }
+        if (LocalDateTime.now().isAfter(dbOtp.getExpiredAt())) {
+            return ResponseEntity.badRequest().body("otp expired");
         }
 
         return ResponseEntity.ok("otp validation done");

@@ -14,4 +14,7 @@ public interface Otprepo extends JpaRepository<Otp, Long> {
 
     Optional<Otp> findByEmailAndType(String email, String pwdreset);
 
+    Optional<Otp> findTopByEmailAndTypeOrderByCreatedAtDesc(String email, String type);
+
+
 }

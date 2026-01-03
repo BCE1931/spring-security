@@ -39,7 +39,7 @@ public class OAuth2LoginSuccessHandler
             User user1 = emailoptional.get();
             String token1 = tokenGeneration.generateToken(email);
             String refreshtoken = tokenGeneration.generaterefreshtoken(email);
-            response.sendRedirect("https://0auth2-frontend.vercel.app/middle?token=" + token1 + "&refreshtoken=" + refreshtoken);
+            response.sendRedirect("https://www.revise.codes/middle?token=" + token1 + "&refreshtoken=" + refreshtoken);
         }
         else {
             User user1 = new User();
@@ -51,7 +51,7 @@ public class OAuth2LoginSuccessHandler
             userrepo.save(user1);
             String token1 = tokenGeneration.generateToken(email);
             String refreshtoken = tokenGeneration.generaterefreshtoken(email);
-            response.sendRedirect("https://0auth2-frontend.vercel.app/middle?token=" + token1 + "&refreshtoken=" + refreshtoken);
+            response.sendRedirect("https://www.revise.codes/middle?token=" + token1 + "&refreshtoken=" + refreshtoken);
         }
 
 

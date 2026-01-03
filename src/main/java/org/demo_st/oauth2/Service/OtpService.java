@@ -6,6 +6,7 @@ import org.demo_st.oauth2.ENTITY.User;
 import org.demo_st.oauth2.JWTTOKENS.TokenGeneration;
 import org.demo_st.oauth2.MAIL.EmailService;
 import org.demo_st.oauth2.MAIL.EmailService;
+import org.demo_st.oauth2.MAIL.SesEmailSender;
 import org.demo_st.oauth2.REPO.Otprepo;
 import org.demo_st.oauth2.REPO.Userrepo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,6 @@ import java.util.Optional;
 @Service
 public class OtpService {
 
-    //STILL THINGS CAN BE DONE ARE
-    //EXPIRATION TIME
-    //IF WE HAVE ONE OR MORE OTP WITH the SAME TYPE AND EMAIL SORT THEN BASED ON CREATION TIME IN DESC
-    //ADD CORN JOB TO DELETE AFTER EXPIRATION TIME
-    //IN DB WE CAN ADD CREATION TIME ALONG WITH CREATION TIME + 5 MIN IS EXPIRE TIME
 
     @Autowired
     private Otprepo otprepo;
@@ -39,6 +35,10 @@ public class OtpService {
     @Autowired
     private TokenGeneration tokenGeneration;
 
+    @Autowired
+    private SesEmailSender sesEmailSender;
+
+
     private long generateOtp() {
         return 100000L + new java.util.Random().nextInt(900000);
     }
@@ -50,7 +50,7 @@ public class OtpService {
         }
 
         long otpValue = generateOtp();
-        if (!mailSender.send(otp.getEmail(), "signup", otpValue)) {
+        if (!sesEmailSender.send(otp.getEmail(), "signup", otpValue)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("failed to send otp");
         }
@@ -84,9 +84,13 @@ public class OtpService {
         user.setUsername(dbOtp.getUsername());
         user.setRole(Role.USER);
         user.setLogintype("manual");
-
         userrepo.save(user);
-
+        try{
+            sesEmailSender.send(otp.getEmail(), "created_successfully", 0L);
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
         otprepo.delete(dbOtp);
         String token = tokenGeneration.generateToken(user.getEmail());
         String refresh_token = tokenGeneration.generaterefreshtoken(user.getEmail());
@@ -109,7 +113,7 @@ public class OtpService {
         }
 
         long otpValue = generateOtp();
-        if (!mailSender.send(otp.getEmail(), "pwdreset", otpValue)) {
+        if (!sesEmailSender.send(otp.getEmail(), "pwdreset", otpValue)) {
             return ResponseEntity.badRequest().body("failed to send otp");
         }
 

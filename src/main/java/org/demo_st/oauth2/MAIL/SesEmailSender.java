@@ -7,9 +7,13 @@ import software.amazon.awssdk.services.ses.model.*;
 @Service
 public class SesEmailSender {
 
-    private final SesClient sesClient = SesClient.builder().build();
+    private final SesClient sesClient;
 
     private static final String FROM_EMAIL = "noreply@revise.codes";
+
+    public SesEmailSender(SesClient sesClient) {
+        this.sesClient = sesClient;
+    }
 
     public boolean send(String email, String type, Long otp) {
 

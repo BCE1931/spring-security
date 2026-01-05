@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface Myworkrepo extends JpaRepository<Mywork,Long> {
@@ -15,4 +16,7 @@ public interface Myworkrepo extends JpaRepository<Mywork,Long> {
     List<Mywork> findByEmailAndTopic(String email, String dsa);
 
     List<Mywork> findByEmailAndId(String email, Long id);
+
+    Optional<Mywork> findByEmailAndIdAndTopic(String name, Long id, String topic);
+
 }

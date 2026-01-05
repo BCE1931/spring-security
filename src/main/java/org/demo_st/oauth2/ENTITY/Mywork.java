@@ -48,6 +48,8 @@ public class Mywork {
 
     private String email;
 
+    private String level;
+
     public Boolean isImportant() {
         return important;
     }
